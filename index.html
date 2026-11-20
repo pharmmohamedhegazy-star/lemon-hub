@@ -43,7 +43,7 @@ header::before{content:'';position:absolute;inset-inline-end:90px;bottom:-110px;
 .logo{background:var(--yellow);color:#0d4d20;font-weight:700;font-size:22px;padding:4px 16px 7px;border-radius:999px;letter-spacing:-.3px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 [data-theme="dark"] .logo{color:#0a1a30}
 .brand small{display:block;font-size:12px;opacity:.85;font-weight:500}
-.brand h1{font-size:21px;font-weight:700;line-height:1.25}
+.brand h1{font-size:clamp(23px,3.6vw,34px);font-weight:700;line-height:1.3}
 .hwrap p.sub{margin-top:8px;font-size:13.5px;opacity:.92;max-width:640px}
 /* ---------- tabs ---------- */
 .tabbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
@@ -141,7 +141,6 @@ html[data-font="4"] .badge{font-size:16.5px}
 .ctl:disabled{opacity:.35;cursor:default}
 .ctl:disabled:hover{background:rgba(255,255,255,.12)}
 @media (max-width:560px){
-  .brand h1{font-size:18px} .logo{font-size:19px}
   table{font-size:13.5px} td.name{min-width:170px}
   select.f{max-width:160px;flex:1 1 140px}
 }
@@ -157,13 +156,8 @@ html[data-font="4"] .badge{font-size:16.5px}
       <button class="ctl" id="themeBtn" onclick="toggleTheme()"></button>
     </div>
     <div class="brand">
-      <span class="logo" id="logoTxt">ليمون</span>
-      <div>
-        <h1 id="ttl">دليل العروض والأصناف</h1>
-        <small>Lemon Pharmacies — Offers, IPL &amp; Master Files</small>
-      </div>
+      <h1 id="ttl">دليل الملفات الرئيسية والعروض والأصناف</h1>
     </div>
-    <p class="sub" id="sub"></p>
   </div>
 </header>
 
@@ -185,8 +179,7 @@ const PAGE_SIZE = 150;
 
 const I18N = {
   ar: {
-    title:'دليل العروض والأصناف', logo:'ليمون', langBtn:'English',
-    sub:'مرجع واحد لكل الفريق: العروض النشطة، أصناف IPL، والمسابقات — البيانات تُحدَّث مباشرة من الملف الرئيسي.',
+    title:'دليل الملفات الرئيسية والعروض والأصناف', langBtn:'English',
     foot:'صيدليات ليمون — صفحة مرجعية للقراءة والبحث فقط · آخر تحديث للبيانات:',
     tabs:{master:'الملفات الرئيسية', offers:'العروض', ipl:'IPL', contest:'المسابقات'},
     searchPh:'ابحث برقم الصنف أو اسمه…', all:'الكل',
@@ -209,8 +202,7 @@ const I18N = {
     updLocale:'ar-EG',
   },
   en: {
-    title:'Offers & Items Guide', logo:'Lemon', langBtn:'العربي',
-    sub:'One reference for the whole team: active offers, IPL items and contests — data updates live from the master file.',
+    title:'Lemon Pharmacies — Offers, IPL & Master Files', langBtn:'العربي',
     foot:'Lemon Pharmacies — read-only reference page · Data last updated:',
     tabs:{master:'Master Files', offers:'Offers', ipl:'IPL', contest:'Contests'},
     searchPh:'Search by item code or name…', all:'All',
@@ -281,9 +273,9 @@ function applyLang(){
   const t = T();
   document.documentElement.lang = lang;
   document.documentElement.dir = lang==='ar' ? 'rtl' : 'ltr';
-  document.title = (lang==='ar' ? 'ليمون — ' : 'Lemon — ') + t.title;
-  $('#ttl').textContent = t.title; $('#logoTxt').textContent = t.logo;
-  $('#sub').textContent = t.sub; $('#foot').textContent = t.foot;
+  document.title = t.title;
+  $('#ttl').textContent = t.title;
+  $('#foot').textContent = t.foot;
   $('#langBtn').textContent = t.langBtn;
   buildTabs();
   TAB_DEFS.forEach(id => { if (S[id].loaded){ buildSection(id); render(id); } });
