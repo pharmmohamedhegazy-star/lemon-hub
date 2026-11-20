@@ -74,6 +74,18 @@ select.f:focus{border-color:var(--brand);outline:none;background:var(--card)}
 /* ---------- table ---------- */
 .tblwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:auto;max-height:72vh}
 table{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+.msbtn{font-family:inherit;font-size:14px;font-weight:700;border:1.5px solid var(--brand);background:var(--card);color:var(--brand-dark);border-radius:10px;padding:8px 14px;cursor:pointer}
+[data-theme="dark"] .msbtn{color:var(--yellow);border-color:var(--yellow)}
+.msbtn.plain{border-color:var(--line);color:var(--text);font-weight:500}
+.mspanel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.mstitle{font-weight:700;margin-bottom:10px}
+.msrow{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.msgrp{display:flex;gap:6px;align-items:center}
+.msgrp span{color:var(--muted);font-size:13px;white-space:nowrap}
+.msapply{cursor:pointer;background:var(--brand);color:#fff;border:0;border-radius:10px;padding:9px 22px;font-weight:700;font-family:inherit;font-size:14px}
+.mschips{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;font-size:13.5px}
+.mschip{background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.mschip b{cursor:pointer;color:var(--bad);font-weight:700}
 thead th.sortable{cursor:pointer} thead th.sortable:hover{text-decoration:underline}
 thead th{position:sticky;top:0;background:var(--brand-dark);color:#fff;font-weight:600;text-align:start;padding:10px 12px;white-space:nowrap;z-index:2}
 tbody td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
@@ -181,6 +193,9 @@ const I18N = {
     foot:'صيدليات ليمون — صفحة مرجعية للقراءة والبحث فقط · آخر تحديث للبيانات:',
     tabs:{master:'الملفات الرئيسية', offers:'العروض', ipl:'IPL', contest:'المسابقات'},
     searchPh:'ابحث برقم الصنف أو اسمه…', all:'الكل',
+    multiSort:'⇅ ترتيب متعدد', multiTitle:'رتّب بكذا عمود مع بعض', level:'المستوى', none:'بدون',
+    asc:'تصاعدي ▲', desc:'تنازلي ▼', ascW:'تصاعدي', descW:'تنازلي',
+    applySort:'تطبيق الترتيب', clearAll:'مسح الكل', curSort:'الترتيب الحالي:', nums:['١','٢','٣'],
     fStatus:'الحالة', fClass:'الكلاس', fCtg:'CTG',
     loading:'جارٍ تحميل البيانات…', loadErr:'تعذّر تحميل البيانات — حاول تحديث الصفحة.',
     empty:'لا توجد نتائج مطابقة لبحثك.', openFile:'فتح الملف',
@@ -204,6 +219,9 @@ const I18N = {
     foot:'Lemon Pharmacies — read-only reference page · Data last updated:',
     tabs:{master:'Master Files', offers:'Offers', ipl:'IPL', contest:'Contests'},
     searchPh:'Search by item code or name…', all:'All',
+    multiSort:'⇅ Multi-sort', multiTitle:'Sort by multiple columns', level:'Level', none:'None',
+    asc:'Ascending ▲', desc:'Descending ▼', ascW:'Ascending', descW:'Descending',
+    applySort:'Apply sort', clearAll:'Clear all', curSort:'Current sort:', nums:['1','2','3'],
     fStatus:'Status', fClass:'Class', fCtg:'CTG',
     loading:'Loading data…', loadErr:"Couldn't load data — try refreshing the page.",
     empty:'No results match your search.', openFile:'Open file',
@@ -242,7 +260,7 @@ function bumpFont(d){
 
 const TAB_DEFS = ['master','offers','ipl','contest'];
 const S = {};
-TAB_DEFS.forEach(id => S[id] = { loaded:false, loading:false, rows:[], shown:PAGE_SIZE, q:'', f:{}, sort:null });
+TAB_DEFS.forEach(id => S[id] = { loaded:false, loading:false, rows:[], shown:PAGE_SIZE, q:'', f:{}, sort:null, sorts:null, panel:false });
 let activeTab = 'offers';
 
 const $ = s => document.querySelector(s);
@@ -336,9 +354,54 @@ function controlsHtml(id, opts){
     h += `<select class="f" onchange="S['${id}'].f['${f.key}']=this.value;S['${id}'].shown=${PAGE_SIZE};render('${id}')">
       <option value="">${f.label}: ${t.all}</option>${vals.map(v=>`<option ${st.f[f.key]===v?'selected':''} value="${esc(v)}">${esc(v)}</option>`).join('')}</select>`;
   });
-  return h + `</div><div id="body-${id}"></div>`;
+  h += `<button class="msbtn" onclick="toggleMsPanel('${id}')">${t.multiSort}</button>`;
+  return h + `</div>` + msPanelHtml(id) + `<div id="body-${id}"></div>`;
 }
 
+function msPanelHtml(id){
+  const st = S[id], t = T(), cs = cols(id);
+  const grp = i => {
+    const cur = st.sorts && st.sorts[i];
+    return `<div class="msgrp"><span>${t.level} ${t.nums[i]}</span>
+      <select class="f" id="ms-c-${id}-${i}"><option value="">${t.none}</option>${cs.map(c=>`<option value="${esc(c.k)}" ${cur&&cur.key===c.k?'selected':''}>${c.l}</option>`).join('')}</select>
+      <select class="f" id="ms-d-${id}-${i}"><option value="1" ${!cur||cur.dir===1?'selected':''}>${t.asc}</option><option value="-1" ${cur&&cur.dir===-1?'selected':''}>${t.desc}</option></select>
+    </div>`;
+  };
+  return `<div class="mspanel" id="ms-${id}" ${st.panel?'':'hidden'}>
+    <div class="mstitle">${t.multiTitle}</div>
+    <div class="msrow">${grp(0)}${grp(1)}${grp(2)}
+      <button class="msapply" onclick="applyMs('${id}')">${t.applySort}</button>
+      <button class="msbtn plain" onclick="clearMs('${id}')">${t.clearAll}</button>
+    </div></div>`;
+}
+function toggleMsPanel(id){
+  const st = S[id], p = $('#ms-'+id);
+  if (!p) return;
+  p.hidden = !p.hidden; st.panel = !p.hidden;
+}
+function applyMs(id){
+  const st = S[id], out = [];
+  for (let i=0;i<3;i++){
+    const k = $('#ms-c-'+id+'-'+i).value;
+    if (k) out.push({ key:k, dir:parseInt($('#ms-d-'+id+'-'+i).value,10) });
+  }
+  st.sorts = out.length ? out : null;
+  st.sort = null; st.shown = PAGE_SIZE;
+  render(id);
+}
+function clearMs(id){
+  const st = S[id];
+  st.sorts = null; st.sort = null; st.shown = PAGE_SIZE;
+  for (let i=0;i<3;i++){ const c = $('#ms-c-'+id+'-'+i), d = $('#ms-d-'+id+'-'+i); if (c) c.value=''; if (d) d.value='1'; }
+  render(id);
+}
+function removeMsLevel(id, idx){
+  const st = S[id];
+  st.sorts.splice(idx,1);
+  if (!st.sorts.length) st.sorts = null;
+  st.shown = PAGE_SIZE;
+  buildSection(id); render(id);
+}
 function buildSection(id){
   const st = S[id], sec = $('#sec-'+id), rows = st.rows, t = T();
   if (id==='master'){
@@ -388,8 +451,11 @@ function cmpVal(a, b){
 }
 function setSort(id, key){
   const st = S[id];
+  const had = !!st.sorts;
+  st.sorts = null;
   if (st.sort && st.sort.key === key) st.sort.dir *= -1;
   else st.sort = { key:key, dir:1 };
+  if (had) buildSection(id);
   render(id);
 }
 function filtered(id){
@@ -398,7 +464,11 @@ function filtered(id){
   Object.entries(st.f).forEach(([k,v])=>{ if(v) rows = rows.filter(r=>String(r[k]||'').trim()===v); });
   const q = norm(st.q);
   if (q) rows = rows.filter(r => norm(Object.values(r).join(' ')).includes(q));
-  if (st.sort) rows.sort((a,b)=> st.sort.dir * cmpVal(a[st.sort.key], b[st.sort.key]));
+  if (st.sorts && st.sorts.length) rows.sort((a,b)=>{
+    for (const s of st.sorts){ const c = s.dir * cmpVal(a[s.key], b[s.key]); if (c) return c; }
+    return 0;
+  });
+  else if (st.sort) rows.sort((a,b)=> st.sort.dir * cmpVal(a[st.sort.key], b[st.sort.key]));
   else if (id==='offers'||id==='contest') rows.sort((a,b)=>{
     const ea=isExp(a)?1:0, eb=isExp(b)?1:0;
     if (ea!==eb) return ea-eb; // المنتهية في الآخر
@@ -435,10 +505,18 @@ function render(id){
   const show = rows.slice(0, st.shown);
   const cs = cols(id);
   let h = `<div class="count-line">${t.countLine(show.length.toLocaleString('en-US'), rows.length.toLocaleString('en-US'))}</div>`;
+  if (st.sorts && st.sorts.length){
+    h += `<div class="mschips"><span style="color:var(--muted)">${t.curSort}</span>${st.sorts.map((s,i)=>{
+      const lbl = (cs.find(c=>c.k===s.key)||{}).l || s.key;
+      return `<span class="mschip">${t.nums[i]}- ${lbl}: ${s.dir===1?t.ascW:t.descW} <b onclick="removeMsLevel('${id}',${i})">✕</b></span>`;
+    }).join('')}</div>`;
+  }
   if (!rows.length){ body.innerHTML = h + `<div class="tblwrap"><div class="empty">${t.empty}</div></div>`; return; }
   h += `<div class="tblwrap"><table><thead><tr>${cs.map(c=>{
     const on = st.sort && st.sort.key===c.k;
-    return `<th class="sortable" onclick="setSort('${id}','${c.k.replace(/'/g,"\\'")}')" title="">${c.l}${on ? (st.sort.dir===1?' ▲':' ▼') : ''}</th>`;
+    const sl = st.sorts ? st.sorts.find(s=>s.key===c.k) : null;
+    const arrow = on ? (st.sort.dir===1?' ▲':' ▼') : (sl ? (sl.dir===1?' ▲':' ▼') : '');
+    return `<th class="sortable" onclick="setSort('${id}','${c.k.replace(/'/g,"\\'")}')" title="">${c.l}${arrow}</th>`;
   }).join('')}</tr></thead><tbody>`;
   h += show.map(r=>`<tr>${cs.map(c=>`<td class="${c.cls||''}">${c.fmt?c.fmt(r[c.k]):esc(r[c.k])}</td>`).join('')}</tr>`).join('');
   h += `</tbody></table></div>`;
