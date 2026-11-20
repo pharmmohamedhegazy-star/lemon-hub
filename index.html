@@ -52,7 +52,6 @@ header::before{content:'';position:absolute;inset-inline-end:90px;bottom:-110px;
 .tab{flex:0 0 auto;border:1.5px solid var(--line);background:var(--card);color:var(--text);font-family:inherit;font-size:14.5px;font-weight:600;padding:8px 16px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s}
 .tab:hover{border-color:var(--brand)}
 .tab.active{background:var(--brand);border-color:var(--brand);color:var(--brand-on);box-shadow:0 3px 10px rgba(0,0,0,.25)}
-.tab.active .cnt{background:rgba(127,127,127,.25);border-color:transparent;color:inherit}
 /* ---------- layout ---------- */
 main{max-width:none;margin:0;padding:18px 16px 40px}
 section{display:none}
@@ -290,7 +289,7 @@ function toggleLang(){
 /* ---------- tabs ---------- */
 function buildTabs(){
   $('#tabs').innerHTML = TAB_DEFS.map(id =>
-    `<button class="tab ${id===activeTab?'active':''}" data-tab="${id}" onclick="activate('${id}')">${T().tabs[id]}<span class="cnt" id="cnt-${id}">${S[id].loaded ? S[id].rows.length.toLocaleString('en-US') : '…'}</span></button>`).join('');
+    `<button class="tab ${id===activeTab?'active':''}" data-tab="${id}" onclick="activate('${id}')">${T().tabs[id]}</button>`).join('');
 }
 function activate(id){
   activeTab = id;
@@ -313,7 +312,6 @@ async function load(id){
     st.rows = data.rows || [];
     st.loaded = true;
     if (data.updated) $('#upd').textContent = new Date(data.updated).toLocaleString(T().updLocale);
-    const c = $('#cnt-'+id); if (c) c.textContent = st.rows.length.toLocaleString('en-US');
     buildSection(id);
     render(id);
   }catch(err){
