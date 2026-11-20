@@ -103,6 +103,26 @@ td.num{white-space:nowrap}
 .mcard a{margin-top:auto;background:var(--yellow);color:#0a1a30;text-decoration:none;font-weight:700;font-size:14px;text-align:center;padding:8px;border-radius:10px}
 .mcard a:hover{filter:brightness(.96)}
 footer{max-width:1680px;margin:0 auto;padding:0 16px 26px;color:var(--muted);font-size:12.5px;text-align:center}
+/* ---------- font size levels ---------- */
+html[data-font="-1"] body{font-size:13.5px}
+html[data-font="-1"] table{font-size:12.5px}
+html[data-font="-1"] .tab{font-size:13.5px}
+html[data-font="-1"] .stat .num{font-size:21px}
+html[data-font="1"] body{font-size:16.5px}
+html[data-font="1"] table{font-size:15.5px}
+html[data-font="1"] .tab{font-size:16px}
+html[data-font="1"] .stat .num{font-size:27px}
+html[data-font="1"] .search input{font-size:16.5px}
+html[data-font="1"] select.f{font-size:15.5px}
+html[data-font="2"] body{font-size:18px}
+html[data-font="2"] table{font-size:17px}
+html[data-font="2"] .tab{font-size:17.5px}
+html[data-font="2"] .stat .num{font-size:30px}
+html[data-font="2"] .search input{font-size:18px}
+html[data-font="2"] select.f{font-size:17px}
+html[data-font="2"] .badge{font-size:13.5px}
+.ctl:disabled{opacity:.35;cursor:default}
+.ctl:disabled:hover{background:rgba(255,255,255,.12)}
 @media (max-width:560px){
   .brand h1{font-size:18px} .logo{font-size:19px}
   table{font-size:13.5px} td.name{min-width:170px}
@@ -114,6 +134,8 @@ footer{max-width:1680px;margin:0 auto;padding:0 16px 26px;color:var(--muted);fon
 <header>
   <div class="hwrap">
     <div class="topctl">
+      <button class="ctl" id="fontMinus" onclick="bumpFont(-1)" style="font-size:11px">A−</button>
+      <button class="ctl" id="fontPlus" onclick="bumpFont(1)" style="font-size:15px">A+</button>
       <button class="ctl" id="langBtn" onclick="toggleLang()"></button>
       <button class="ctl" id="themeBtn" onclick="toggleTheme()"></button>
     </div>
@@ -198,6 +220,18 @@ const I18N = {
 let lang = localStorage.getItem('lh_lang') || 'ar';
 const T = () => I18N[lang];
 let theme = localStorage.getItem('lh_theme') || 'light';
+let fontLvl = parseInt(localStorage.getItem('lh_font') || '0', 10);
+function applyFont(){
+  document.documentElement.dataset.font = fontLvl;
+  const mn = $('#fontMinus'), pl = $('#fontPlus');
+  if (mn) mn.disabled = fontLvl <= -1;
+  if (pl) pl.disabled = fontLvl >= 2;
+}
+function bumpFont(d){
+  fontLvl = Math.max(-1, Math.min(2, fontLvl + d));
+  localStorage.setItem('lh_font', fontLvl);
+  applyFont();
+}
 
 const TAB_DEFS = ['master','offers','ipl','contest'];
 const S = {};
@@ -391,6 +425,7 @@ function render(id){
 }
 
 /* ---------- init ---------- */
+applyFont();
 applyLang();
 activate('offers');
 ['master','ipl','contest'].forEach(id=>load(id));
