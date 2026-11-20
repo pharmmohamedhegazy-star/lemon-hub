@@ -76,6 +76,7 @@ select.f:focus{border-color:var(--brand);outline:none;background:var(--card)}
 /* ---------- table ---------- */
 .tblwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:auto;max-height:72vh}
 table{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+thead th.sortable{cursor:pointer} thead th.sortable:hover{text-decoration:underline}
 thead th{position:sticky;top:0;background:var(--brand-dark);color:#fff;font-weight:600;text-align:start;padding:10px 12px;white-space:nowrap;z-index:2}
 tbody td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
 tbody tr:nth-child(even){background:var(--row-alt)}
@@ -96,11 +97,13 @@ td.num{white-space:nowrap}
 .spin{width:30px;height:30px;border:3.5px solid var(--line);border-top-color:var(--brand);border-radius:50%;margin:0 auto 10px;animation:sp 0.8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 /* ---------- master cards ---------- */
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
-.mcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
-.mcard h3{font-size:16px;font-weight:700;color:var(--accent)}
-.mcard .tf{font-size:13px;color:var(--muted);font-weight:500}
-.mcard a{margin-top:auto;background:var(--yellow);color:#0a1a30;text-decoration:none;font-weight:700;font-size:14px;text-align:center;padding:8px;border-radius:10px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:620px){.cards{grid-template-columns:1fr}}
+.mcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
+.mcard h3{font-size:19px;font-weight:700;color:var(--accent)}
+.mcard .tf{font-size:14.5px;color:var(--muted);font-weight:500}
+.mcard a{margin-top:auto;background:var(--yellow);color:#0a1a30;text-decoration:none;font-weight:700;font-size:15.5px;text-align:center;padding:11px;border-radius:10px}
 .mcard a:hover{filter:brightness(.96)}
 footer{max-width:1680px;margin:0 auto;padding:0 16px 26px;color:var(--muted);font-size:12.5px;text-align:center}
 /* ---------- font size levels ---------- */
@@ -235,7 +238,7 @@ function bumpFont(d){
 
 const TAB_DEFS = ['master','offers','ipl','contest'];
 const S = {};
-TAB_DEFS.forEach(id => S[id] = { loaded:false, loading:false, rows:[], shown:PAGE_SIZE, q:'', f:{} });
+TAB_DEFS.forEach(id => S[id] = { loaded:false, loading:false, rows:[], shown:PAGE_SIZE, q:'', f:{}, sort:null });
 let activeTab = 'offers';
 
 const $ = s => document.querySelector(s);
@@ -326,7 +329,7 @@ function controlsHtml(id, opts){
       <input type="text" placeholder="${t.searchPh}" value="${esc(st.q)}" oninput="S['${id}'].q=this.value;S['${id}'].shown=${PAGE_SIZE};render('${id}')">
     </label>`;
   (opts.filters||[]).forEach(f=>{
-    const vals = [...new Set(st.rows.map(r=>String(r[f.key]||'').trim()).filter(Boolean))].sort();
+    const vals = [...new Set(st.rows.map(r=>String(r[f.key]||'').trim()).filter(Boolean))].sort(cmpVal);
     h += `<select class="f" onchange="S['${id}'].f['${f.key}']=this.value;S['${id}'].shown=${PAGE_SIZE};render('${id}')">
       <option value="">${f.label}: ${t.all}</option>${vals.map(v=>`<option ${st.f[f.key]===v?'selected':''} value="${esc(v)}">${esc(v)}</option>`).join('')}</select>`;
   });
@@ -368,19 +371,32 @@ function buildSection(id){
       {num:rows.length.toLocaleString('en-US'), lbl:t.stIplItems},
       {num:classes, lbl:t.stClasses},
       {num:statuses, lbl:t.stStatuses},
-    ]) + controlsHtml(id, {filters:[{key:'STATUS', label:t.fStatus},{key:'CLASS_NAME', label:t.fClass},{key:'CTG', label:t.fCtg}]});
+    ]) + controlsHtml(id, {filters:[{key:'STATUS', label:t.fStatus},{key:'RATE', label:'RATE'},{key:'CLASS_NAME', label:t.fClass},{key:'CTG', label:t.fCtg}]});
     return;
   }
 }
 
 /* ---------- filtering + tables ---------- */
+function cmpVal(a, b){
+  const sa = String(a ?? '').trim(), sb = String(b ?? '').trim();
+  const na = parseFloat(sa), nb = parseFloat(sb);
+  if (sa !== '' && sb !== '' && !isNaN(na) && !isNaN(nb)) return na - nb;
+  return sa.localeCompare(sb, 'en', { numeric:true });
+}
+function setSort(id, key){
+  const st = S[id];
+  if (st.sort && st.sort.key === key) st.sort.dir *= -1;
+  else st.sort = { key:key, dir:1 };
+  render(id);
+}
 function filtered(id){
   const st = S[id];
   let rows = st.rows.slice();
   Object.entries(st.f).forEach(([k,v])=>{ if(v) rows = rows.filter(r=>String(r[k]||'').trim()===v); });
   const q = norm(st.q);
   if (q) rows = rows.filter(r => norm(Object.values(r).join(' ')).includes(q));
-  if (id==='offers'||id==='contest') rows.sort((a,b)=>{
+  if (st.sort) rows.sort((a,b)=> st.sort.dir * cmpVal(a[st.sort.key], b[st.sort.key]));
+  else if (id==='offers'||id==='contest') rows.sort((a,b)=>{
     const ea=isExp(a)?1:0, eb=isExp(b)?1:0;
     if (ea!==eb) return ea-eb; // المنتهية في الآخر
     const na=parseInt(a['End After'],10), nb=parseInt(b['End After'],10);
@@ -417,7 +433,10 @@ function render(id){
   const cs = cols(id);
   let h = `<div class="count-line">${t.countLine(show.length.toLocaleString('en-US'), rows.length.toLocaleString('en-US'))}</div>`;
   if (!rows.length){ body.innerHTML = h + `<div class="tblwrap"><div class="empty">${t.empty}</div></div>`; return; }
-  h += `<div class="tblwrap"><table><thead><tr>${cs.map(c=>`<th>${c.l}</th>`).join('')}</tr></thead><tbody>`;
+  h += `<div class="tblwrap"><table><thead><tr>${cs.map(c=>{
+    const on = st.sort && st.sort.key===c.k;
+    return `<th class="sortable" onclick="setSort('${id}','${c.k.replace(/'/g,"\\'")}')" title="">${c.l}${on ? (st.sort.dir===1?' ▲':' ▼') : ''}</th>`;
+  }).join('')}</tr></thead><tbody>`;
   h += show.map(r=>`<tr>${cs.map(c=>`<td class="${c.cls||''}">${c.fmt?c.fmt(r[c.k]):esc(r[c.k])}</td>`).join('')}</tr>`).join('');
   h += `</tbody></table></div>`;
   if (rows.length > st.shown) h += `<button class="more" onclick="S['${id}'].shown+=${PAGE_SIZE};render('${id}')">${t.more((rows.length-st.shown).toLocaleString('en-US'))}</button>`;
