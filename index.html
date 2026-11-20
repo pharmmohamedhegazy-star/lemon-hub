@@ -493,7 +493,7 @@ function cols(id){
   if (id==='ipl') return [
     {k:'ITEM_CODE', l:c.code, cls:'code'}, {k:'ITEM_NAME', l:c.item, cls:'name'},
     {k:'RATE', l:c.rate, cls:'num'}, {k:'CTG', l:c.ctg},
-    {k:'STATUS', l:c.status, fmt:v=>`<span class="badge plain">${esc(v)}</span>`},
+    {k:'STATUS', l:c.status, fmt:v=>`<span class="badge ${String(v).trim()==='OUT'?'exp':'plain'}">${esc(v)}</span>`},
     {k:'CLASS_NAME', l:c.cls} ];
   return [];
 }
