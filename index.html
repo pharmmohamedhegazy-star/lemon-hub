@@ -35,7 +35,7 @@ body{font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;background:var(--bg
 header{background:linear-gradient(135deg,var(--hdr1),var(--hdr2));color:#fff;position:relative;overflow:hidden}
 header::after{content:'';position:absolute;inset-inline-end:-70px;top:-70px;width:230px;height:230px;border-radius:50%;background:rgba(255,198,26,.22)}
 header::before{content:'';position:absolute;inset-inline-end:90px;bottom:-110px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.08)}
-.hwrap{max-width:1180px;margin:0 auto;padding:16px 16px 18px;position:relative;z-index:1}
+.hwrap{max-width:1680px;margin:0 auto;padding:16px 16px 18px;position:relative;z-index:1}
 .topctl{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px}
 .ctl{border:1.5px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;font-family:inherit;font-size:13px;font-weight:700;padding:5px 14px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:6px}
 .ctl:hover{background:rgba(255,255,255,.25)}
@@ -47,7 +47,7 @@ header::before{content:'';position:absolute;inset-inline-end:90px;bottom:-110px;
 .hwrap p.sub{margin-top:8px;font-size:13.5px;opacity:.92;max-width:640px}
 /* ---------- tabs ---------- */
 .tabbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.tabbar .inner{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.tabbar .inner{max-width:1680px;margin:0 auto;padding:10px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
 .tabbar .inner::-webkit-scrollbar{display:none}
 .tab{flex:0 0 auto;border:1.5px solid var(--line);background:var(--card);color:var(--text);font-family:inherit;font-size:14.5px;font-weight:600;padding:8px 16px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s}
 .tab .cnt{background:var(--bg);border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:700;border-radius:999px;padding:0 8px;line-height:1.7}
@@ -55,7 +55,7 @@ header::before{content:'';position:absolute;inset-inline-end:90px;bottom:-110px;
 .tab.active{background:var(--brand);border-color:var(--brand);color:var(--brand-on);box-shadow:0 3px 10px rgba(0,0,0,.25)}
 .tab.active .cnt{background:rgba(127,127,127,.25);border-color:transparent;color:inherit}
 /* ---------- layout ---------- */
-main{max-width:1180px;margin:0 auto;padding:18px 16px 40px}
+main{max-width:1680px;margin:0 auto;padding:18px 16px 40px}
 section{display:none}
 section.active{display:block;animation:fade .18s ease}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
@@ -102,7 +102,7 @@ td.num{white-space:nowrap}
 .mcard .tf{font-size:13px;color:var(--muted);font-weight:500}
 .mcard a{margin-top:auto;background:var(--yellow);color:#0a1a30;text-decoration:none;font-weight:700;font-size:14px;text-align:center;padding:8px;border-radius:10px}
 .mcard a:hover{filter:brightness(.96)}
-footer{max-width:1180px;margin:0 auto;padding:0 16px 26px;color:var(--muted);font-size:12.5px;text-align:center}
+footer{max-width:1680px;margin:0 auto;padding:0 16px 26px;color:var(--muted);font-size:12.5px;text-align:center}
 @media (max-width:560px){
   .brand h1{font-size:18px} .logo{font-size:19px}
   table{font-size:13.5px} td.name{min-width:170px}
