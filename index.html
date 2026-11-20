@@ -124,6 +124,20 @@ html[data-font="2"] .stat .num{font-size:30px}
 html[data-font="2"] .search input{font-size:18px}
 html[data-font="2"] select.f{font-size:17px}
 html[data-font="2"] .badge{font-size:13.5px}
+html[data-font="3"] body{font-size:20px}
+html[data-font="3"] table{font-size:19px}
+html[data-font="3"] .tab{font-size:19px}
+html[data-font="3"] .stat .num{font-size:34px}
+html[data-font="3"] .search input{font-size:20px}
+html[data-font="3"] select.f{font-size:19px}
+html[data-font="3"] .badge{font-size:15px}
+html[data-font="4"] body{font-size:22.5px}
+html[data-font="4"] table{font-size:21px}
+html[data-font="4"] .tab{font-size:21px}
+html[data-font="4"] .stat .num{font-size:38px}
+html[data-font="4"] .search input{font-size:22.5px}
+html[data-font="4"] select.f{font-size:21px}
+html[data-font="4"] .badge{font-size:16.5px}
 .ctl:disabled{opacity:.35;cursor:default}
 .ctl:disabled:hover{background:rgba(255,255,255,.12)}
 @media (max-width:560px){
@@ -228,10 +242,10 @@ function applyFont(){
   document.documentElement.dataset.font = fontLvl;
   const mn = $('#fontMinus'), pl = $('#fontPlus');
   if (mn) mn.disabled = fontLvl <= -1;
-  if (pl) pl.disabled = fontLvl >= 2;
+  if (pl) pl.disabled = fontLvl >= 4;
 }
 function bumpFont(d){
-  fontLvl = Math.max(-1, Math.min(2, fontLvl + d));
+  fontLvl = Math.max(-1, Math.min(4, fontLvl + d));
   localStorage.setItem('lh_font', fontLvl);
   applyFont();
 }
