@@ -87,11 +87,11 @@ table{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
 .mschip{background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
 .mschip b{cursor:pointer;color:var(--bad);font-weight:700}
 thead th.sortable{cursor:pointer} thead th.sortable:hover{text-decoration:underline}
-thead th{position:sticky;top:0;background:var(--brand-dark);color:#fff;font-weight:600;text-align:start;padding:10px 12px;white-space:nowrap;z-index:2}
-tbody td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
+thead th{position:sticky;top:0;background:var(--brand-dark);color:#fff;font-weight:600;text-align:center;padding:10px 12px;white-space:nowrap;z-index:2}
+tbody td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top;text-align:center}
 tbody tr:nth-child(even){background:var(--row-alt)}
 tbody tr:hover{background:var(--yellow-soft)}
-td.code{font-weight:700;color:var(--accent);white-space:nowrap;direction:ltr;text-align:left}
+td.code{font-weight:700;color:var(--accent);white-space:nowrap;direction:ltr;text-align:center}
 td.name{font-weight:500;min-width:220px}
 td.num{white-space:nowrap}
 .badge{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:1px 10px;white-space:nowrap}
@@ -191,12 +191,12 @@ const I18N = {
   ar: {
     title:'دليل الملفات الرئيسية والعروض والأصناف', langBtn:'English',
     foot:'صيدليات ليمون — صفحة مرجعية للقراءة والبحث فقط · آخر تحديث للبيانات:',
-    tabs:{master:'الملفات الرئيسية', offers:'العروض', ipl:'IPL', contest:'المسابقات'},
+    tabs:{master:'الملفات الرئيسية', offers:'العروض', ipl:'الأصناف التحفيزية', contest:'المسابقات'},
     searchPh:'ابحث برقم الصنف أو اسمه…', all:'الكل',
     multiSort:'⇅ ترتيب متعدد', multiTitle:'رتّب بكذا عمود مع بعض', level:'المستوى', none:'بدون',
     asc:'تصاعدي ▲', desc:'تنازلي ▼', ascW:'تصاعدي', descW:'تنازلي',
     applySort:'تطبيق الترتيب', clearAll:'مسح الكل', curSort:'الترتيب الحالي:', nums:['١','٢','٣'],
-    fStatus:'الحالة', fClass:'الكلاس', fCtg:'CTG',
+    fStatus:'الحالة', fClass:'الكلاس', fCtg:'التصنيف', fRate:'النسبة',
     loading:'جارٍ تحميل البيانات…', loadErr:'تعذّر تحميل البيانات — حاول تحديث الصفحة.',
     empty:'لا توجد نتائج مطابقة لبحثك.', openFile:'فتح الملف',
     countLine:(a,b)=>`عرض ${a} من ${b} نتيجة`,
@@ -204,9 +204,9 @@ const I18N = {
     stMasterFiles:'ملف / رابط رئيسي',
     stActiveOffers:'عرض نشط الآن', stExpiredOffers:'عرض منتهٍ', stTotalOffers:'إجمالي العروض',
     stActiveContests:'مسابقة جارية', stExpiredContests:'منتهية', stTotalContests:'إجمالي المسابقات',
-    stIplItems:'صنف في IPL', stClasses:'كلاس', stStatuses:'حالة',
+    stIplItems:'صنف تحفيزي', stClasses:'كلاس', stStatuses:'حالة',
     col:{code:'الكود', item:'الصنف', offer:'العرض', from:'من', to:'إلى', left:'المتبقي',
-         contest:'المسابقة', limit:'الحد', cls:'الكلاس', rate:'RATE', ctg:'CTG', status:'الحالة'},
+         contest:'المسابقة', limit:'الحد', cls:'الكلاس', rate:'النسبة', ctg:'التصنيف', status:'الحالة'},
     badge:n=>{ if(isNaN(n)) return '<span class="badge plain">—</span>';
       if(n<0) return `<span class="badge exp">منتهي منذ ${-n} يوم</span>`;
       if(n===0) return '<span class="badge soon">ينتهي اليوم</span>';
@@ -222,7 +222,7 @@ const I18N = {
     multiSort:'⇅ Multi-sort', multiTitle:'Sort by multiple columns', level:'Level', none:'None',
     asc:'Ascending ▲', desc:'Descending ▼', ascW:'Ascending', descW:'Descending',
     applySort:'Apply sort', clearAll:'Clear all', curSort:'Current sort:', nums:['1','2','3'],
-    fStatus:'Status', fClass:'Class', fCtg:'CTG',
+    fStatus:'Status', fClass:'Class', fCtg:'CTG', fRate:'RATE',
     loading:'Loading data…', loadErr:"Couldn't load data — try refreshing the page.",
     empty:'No results match your search.', openFile:'Open file',
     countLine:(a,b)=>`Showing ${a} of ${b} results`,
@@ -437,7 +437,7 @@ function buildSection(id){
       {num:rows.length.toLocaleString('en-US'), lbl:t.stIplItems},
       {num:classes, lbl:t.stClasses},
       {num:statuses, lbl:t.stStatuses},
-    ]) + controlsHtml(id, {filters:[{key:'STATUS', label:t.fStatus},{key:'RATE', label:'RATE'},{key:'CLASS_NAME', label:t.fClass},{key:'CTG', label:t.fCtg}]});
+    ]) + controlsHtml(id, {filters:[{key:'STATUS', label:t.fStatus},{key:'RATE', label:t.fRate},{key:'CLASS_NAME', label:t.fClass},{key:'CTG', label:t.fCtg}]});
     return;
   }
 }
