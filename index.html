@@ -107,13 +107,13 @@ td.num{white-space:nowrap}
 .spin{width:30px;height:30px;border:3.5px solid var(--line);border-top-color:var(--brand);border-radius:50%;margin:0 auto 10px;animation:sp 0.8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 /* ---------- master cards ---------- */
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;grid-auto-rows:1fr}
 @media (max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:620px){.cards{grid-template-columns:1fr}}
-.mcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
-.mcard h3{font-size:19px;font-weight:700;color:var(--accent)}
-.mcard .tf{font-size:14.5px;color:var(--muted);font-weight:500}
-.mcard a{margin-top:auto;background:var(--yellow);color:#0a1a30;text-decoration:none;font-weight:700;font-size:15.5px;text-align:center;padding:11px;border-radius:10px}
+.mcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:32px 28px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
+.mcard h3{font-size:23px;font-weight:700;color:var(--accent)}
+.mcard .tf{font-size:16px;color:var(--muted);font-weight:500}
+.mcard a{margin-top:22px;background:var(--yellow);color:#0a1a30;text-decoration:none;font-weight:700;font-size:17.5px;text-align:center;padding:15px;border-radius:10px}
 .mcard a:hover{filter:brightness(.96)}
 footer{max-width:none;margin:0;padding:0 16px 26px;color:var(--muted);font-size:12.5px;text-align:center}
 /* ---------- font size levels ---------- */
@@ -405,7 +405,7 @@ function removeMsLevel(id, idx){
 function buildSection(id){
   const st = S[id], sec = $('#sec-'+id), rows = st.rows, t = T();
   if (id==='master'){
-    sec.innerHTML = statsHtml([{num:rows.length, lbl:t.stMasterFiles}]) +
+    sec.innerHTML =
       `<div class="cards">${rows.map(r=>`
         <div class="mcard"><h3>${esc(r['Name'])}</h3>
         <div class="tf">${esc(r['Time Frame']||'')}</div>
